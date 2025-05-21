@@ -3,14 +3,15 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo "Install phase - no setup needed"
+      - echo "Nothing to install"
   build:
     commands:
-      - echo "Zipping application files..."
-      - zip -r app.zip . -x "*.git*" "tests/*" "scripts/*"
+      - echo "Packaging application..."
+      - cd ProjectDev-main
+      - zip -r ../app.zip . -x "*.git*" "tests/*" "scripts/*"
   post_build:
     commands:
-      - echo "Build complete. Ready for deployment."
+      - echo "Build complete"
 
 artifacts:
   files:
