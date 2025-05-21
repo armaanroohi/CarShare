@@ -1,0 +1,18 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      # No runtime-versions needed for AL2023
+      - echo "Install phase - no setup needed"
+  build:
+    commands:
+      - echo "Zipping application files..."
+      - zip -r app.zip . -x "*.git*" "tests/*" "scripts/*"
+  post_build:
+    commands:
+      - echo "Build complete. Ready for deployment."
+
+artifacts:
+  files:
+    - app.zip
