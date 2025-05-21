@@ -3,16 +3,15 @@ version: 0.2
 phases:
   install:
     commands:
-      # No runtime-versions needed for AL2023
-      - echo "Install phase - no setup needed"
+      - echo Installing dependencies...
+      - composer install
   build:
     commands:
-      - echo "Zipping application files..."
-      - zip -r app.zip . -x "*.git*" "tests/*" "scripts/*"
+      - echo Build started on `date`
   post_build:
     commands:
-      - echo "Build complete. Ready for deployment."
+      - echo Build completed on `date`
 
 artifacts:
   files:
-    - app.zip
+    - '**/*'
