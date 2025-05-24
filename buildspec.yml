@@ -1,18 +1,11 @@
 version: 0.2
-
 phases:
   install:
     commands:
-      - echo "Nothing to install"
+      - echo Installing dependencies...
   build:
     commands:
-      - echo "Packaging application..."
-      - cd ProjectDev-main
-      - zip -r ../app.zip . -x "*.git*" "tests/*" "scripts/*"
-  post_build:
-    commands:
-      - echo "Build complete"
-
+      - echo Build started on `date`
 artifacts:
   files:
-    - app.zip
+    - '**/*'
