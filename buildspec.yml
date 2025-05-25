@@ -1,11 +1,13 @@
 version: 0.2
+
 phases:
   install:
     commands:
-      - echo No build commands needed
+      - echo Skipping dependency installation
   build:
     commands:
-      - echo Skipping build phase
+      - echo Packaging application content
 artifacts:
   files:
     - '**/*'
+  discard-paths: no
