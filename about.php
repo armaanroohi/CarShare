@@ -3,7 +3,6 @@
 include('header.php');
 
 ?>
-
   <head>
     <title>AboutUS</title>
     <link rel="stylesheet" href="css/about.css" />
