@@ -45,6 +45,7 @@ if (isset($_POST['login'])) {
         $message = "Username and password cannot be empty.";
     } else {
         echo "🔍 Checking user: " . htmlspecialchars($uname) . "<br>";
+        error_log("✅ Connected, preparing statement for user $uname");
 
         $stmt = $conn->prepare("SELECT * FROM user_registration WHERE username = ?");
         if (!$stmt) {
@@ -53,6 +54,8 @@ if (isset($_POST['login'])) {
 
         $stmt->bind_param("s", $uname);
         $stmt->execute();
+        error_log("✅ Statement executed");
+
         $result = $stmt->get_result();
         $user = $result->fetch_assoc();
 
