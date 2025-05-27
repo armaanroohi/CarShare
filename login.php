@@ -1,95 +1,79 @@
 ﻿<?php
-// Output buffering for cleaner header handling
-ob_start();
-
-// Enable error reporting for development
+// Enable error reporting
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Secure session setup
+// Secure session
 ini_set('session.cookie_httponly', 1);
-ini_set('session.cookie_secure', 0); // Set to 1 only with HTTPS
 ini_set('session.use_strict_mode', 1);
 session_start();
-
-require_once 'config.php';
-
-// DEBUG: Show DB env variables (remove after testing)
-echo "<pre>";
-echo "db_host: " . getenv('db_host') . "\n";
-echo "db_user: " . getenv('db_user') . "\n";
-echo "db_name: " . getenv('db_name') . "\n";
-echo "</pre>";
-
-// DB connection check
-if (!$conn) {
-    die("❌ Connection error in login.php: " . mysqli_connect_error());
-}
-echo "✅ DB connected in login.php<br>";
-
-// Add a MySQL connect timeout (to fail fast if RDS unreachable)
-mysqli_options($conn, MYSQLI_OPT_CONNECT_TIMEOUT, 5);
 
 // Security headers
 header("Content-Security-Policy: default-src 'self'");
 header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: DENY");
 
-// Handle form submission
-if (isset($_POST['login'])) {
+echo "<pre>";
+
+// DB connection with timeout
+ini_set('mysqli.connect_timeout', 5);
+$host = getenv('db_host') ?: 'localhost';
+$user = getenv('db_user') ?: 'root';
+$pass = getenv('db_pass') ?: '';
+$dbname = getenv('db_name') ?: 'car_rental_database';
+
+echo "Connecting to DB...\n";
+$conn = @mysqli_connect($host, $user, $pass, $dbname);
+
+if (!$conn) {
+    die("❌ DB connection failed: " . mysqli_connect_error());
+}
+echo "✅ Connected to DB\n";
+
+$message = '';
+
+// Handle login
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     $uname = trim($_POST['username']);
     $password = $_POST['password'];
 
     if (empty($uname) || empty($password)) {
-        $message = "Username and password cannot be empty.";
+        $message = "❗ Username and password required.";
     } else {
-        echo "🔍 Checking user: " . htmlspecialchars($uname) . "<br>";
-        error_log("✅ Connected, preparing statement for user $uname");
-
+        echo "🔍 Checking user: $uname\n";
         $stmt = $conn->prepare("SELECT * FROM user_registration WHERE username = ?");
-        if (!$stmt) {
-            die("❌ Prepare failed: " . $conn->error);
-        }
-
         $stmt->bind_param("s", $uname);
         $stmt->execute();
-        error_log("✅ Statement executed");
-
         $result = $stmt->get_result();
         $user = $result->fetch_assoc();
 
         if ($user && password_verify($password, $user['password'])) {
             $_SESSION['logged_in'] = true;
             $_SESSION['username'] = $uname;
+            echo "✅ Login successful. Redirecting...\n";
             header("Location: index.php");
             exit();
         } else {
-            $message = "Invalid username or password.";
+            $message = "❌ Invalid username or password.";
         }
     }
 }
+echo "</pre>";
 ?>
 
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Login</title>
-</head>
+<head><title>Login</title></head>
 <body>
     <h2>Login</h2>
     <?php if (!empty($message)) echo "<p style='color:red;'>$message</p>"; ?>
     <form method="POST" action="login.php">
-        <label for="username">Username:</label><br/>
-        <input type="text" id="username" name="username" required><br/><br/>
-        <label for="password">Password:</label><br/>
-        <input type="password" id="password" name="password" required><br/><br/>
+        <label>Username:</label><br>
+        <input type="text" name="username" required><br><br>
+        <label>Password:</label><br>
+        <input type="password" name="password" required><br><br>
         <input type="submit" name="login" value="Login">
     </form>
 </body>
 </html>
-
-<?php
-// Flush output buffer
-ob_end_flush();
-?>

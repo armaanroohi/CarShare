@@ -25,6 +25,9 @@ if ($debug) {
 // Set MySQLi timeout (for production hangs)
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
+// Set MySQL connection timeout
+ini_set('mysqli.connect_timeout', 5); // 5 seconds
+
 // Attempt to connect to the database
 $conn = @mysqli_connect($host, $user, $password, $dbname);
 

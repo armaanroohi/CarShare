@@ -1,8 +1,16 @@
-<?php
-echo "<pre>";
-echo "db_host: " . getenv('db_host') . "\n";
-echo "db_user: " . getenv('db_user') . "\n";
-echo "db_pass: " . getenv('db_pass') . "\n";
-echo "db_name: " . getenv('db_name') . "\n";
-echo "</pre>";
+﻿<?php
+$host = getenv('db_host');
+$user = getenv('db_user');
+$pass = getenv('db_pass');
+$dbname = getenv('db_name');
+
+$conn = @mysqli_connect($host, $user, $pass, $dbname);
+
+if (!$conn) {
+    http_response_code(500);
+    echo "❌ DB connection failed: " . mysqli_connect_error();
+} else {
+    echo "✅ DB connected successfully!";
+    mysqli_close($conn);
+}
 ?>
