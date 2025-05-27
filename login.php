@@ -1,23 +1,35 @@
 ﻿<?php
+// Output buffering for cleaner header handling
+ob_start();
+
 // Enable error reporting for development
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Secure session
+// Secure session setup
 ini_set('session.cookie_httponly', 1);
-ini_set('session.cookie_secure', 0); // Change to 1 only if you're using HTTPS locally
+ini_set('session.cookie_secure', 0); // Set to 1 only with HTTPS
 ini_set('session.use_strict_mode', 1);
 session_start();
 
 require_once 'config.php';
 
+// DEBUG: Show DB env variables (remove after testing)
+echo "<pre>";
+echo "db_host: " . getenv('db_host') . "\n";
+echo "db_user: " . getenv('db_user') . "\n";
+echo "db_name: " . getenv('db_name') . "\n";
+echo "</pre>";
+
+// DB connection check
 if (!$conn) {
     die("❌ Connection error in login.php: " . mysqli_connect_error());
-} else {
-    echo "✅ DB connected in login.php<br>";
 }
+echo "✅ DB connected in login.php<br>";
 
+// Add a MySQL connect timeout (to fail fast if RDS unreachable)
+mysqli_options($conn, MYSQLI_OPT_CONNECT_TIMEOUT, 5);
 
 // Security headers
 header("Content-Security-Policy: default-src 'self'");
@@ -35,6 +47,10 @@ if (isset($_POST['login'])) {
         echo "🔍 Checking user: " . htmlspecialchars($uname) . "<br>";
 
         $stmt = $conn->prepare("SELECT * FROM user_registration WHERE username = ?");
+        if (!$stmt) {
+            die("❌ Prepare failed: " . $conn->error);
+        }
+
         $stmt->bind_param("s", $uname);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -69,3 +85,8 @@ if (isset($_POST['login'])) {
     </form>
 </body>
 </html>
+
+<?php
+// Flush output buffer
+ob_end_flush();
+?>
