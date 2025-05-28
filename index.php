@@ -22,6 +22,7 @@ include('header.php');
     <div class="background-image"></div>
     <div class="text-container">
       <h1>Welcome to Car Rental</h1>
+      <h2>ICT301 DevOps Project</h2>
       <p>
         Welcome to our car rental website, where you can browse and book a
         wide range of vehicles at affordable prices. Whether you <br />
